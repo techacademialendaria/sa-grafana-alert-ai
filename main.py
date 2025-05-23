@@ -7,8 +7,8 @@ load_dotenv()
 
 app = Flask(__name__)
 
-OPENROUTER_KEY = os.getenv("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")
-DISCORD_WEBHOOK = os.getenv("https://discord.com/api/webhooks/1375542806201897061/oN32nqWE_rHsznnm5jezNVESj1VgyMcD2qpIBT99bdi8vJB6sJ5snyt9qWoszwSjzfhO")
+OPENROUTER_KEY = os.getenv("OPENROUTER_KEY")
+DISCORD_WEBHOOK = os.getenv("DISCORD_WEBHOOK")
 
 @app.route("/grafana-alert", methods=["POST"])
 def handle_alert():
@@ -62,3 +62,8 @@ Resumo: {summary}
     })
 
     return {"status": "ok"}, 200
+
+# 🚀 Parte mais importante pro Railway funcionar:
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)

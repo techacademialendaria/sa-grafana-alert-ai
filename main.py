@@ -44,7 +44,7 @@ Resumo: {summary}
                 "Content-Type": "application/json"
             },
             json={
-                "model": "openai/gpt-4-turbo",
+                "model": "mistralai/mistral-7b-instruct",
                 "messages": [
                     {"role": "system", "content": "Você é um engenheiro SRE especialista em PostgreSQL e observabilidade."},
                     {"role": "user", "content": prompt}

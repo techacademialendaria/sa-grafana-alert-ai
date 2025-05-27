@@ -31,6 +31,7 @@ Resumo: {summary}
 1. Diagnostique o problema.
 2. Sugira causas prováveis.
 3. Dê recomendações técnicas específicas.
+4. Informe as instruções em Português Brasil.
 """
 
     print("🚨 Alerta recebido:", rule_name)

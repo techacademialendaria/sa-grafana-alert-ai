@@ -15,19 +15,26 @@ def handle_alert():
     data = request.json
     print("🚨 Alerta recebido:", data)
 
-    # ✅ Fallback: tenta extrair a mensagem customizada ou monta com base nas labels
-    if "message" in data and data["message"].strip():
+    # 🔍 Extrai campos com fallback
+    rule_name = data.get("ruleName", "Alerta Grafana")
+    labels = data.get("labels", {})
+    annotations = data.get("annotations", {})
+
+    instance = labels.get("instance", "desconhecida")
+    database = labels.get("database", "desconhecido")
+    user = labels.get("user", "desconhecido")
+    value = data.get("valueString", "?")
+    summary = annotations.get("summary", "Sem resumo")
+
+    # 🧠 Mensagem personalizada se fornecida
+    if data.get("message") and data["message"].strip():
         mensagem = data["message"]
     else:
-        rule_name = data.get("ruleName", "Alerta Grafana")
-        labels = data.get("labels", {})
-        instance = labels.get("instance", "desconhecida")
-        value = data.get("valueString", "?")
-        summary = data.get("annotations", {}).get("summary", "Sem resumo")
-
         mensagem = f"""Regra: {rule_name}
 Instância: {instance}
-Valor da métrica: {value}
+Banco: {database}
+Usuário: {user}
+Valor: {value}
 Resumo: {summary}"""
 
     # 🔍 Prompt enviado à IA
@@ -42,7 +49,7 @@ Resumo: {summary}"""
 """
 
     try:
-        # 💬 Chamada à OpenRouter
+        # 💬 Consulta à OpenRouter
         response = requests.post(
             "https://openrouter.ai/api/v1/chat/completions",
             headers={
@@ -73,16 +80,13 @@ Resumo: {summary}"""
         print("📦 Resposta crua:", getattr(response, "text", "sem resposta"))
         resposta = "⚠️ Erro ao consultar a IA. Verifique logs para detalhes."
 
-    # 📤 Envia alerta para Discord
+    # 📤 Envia para Discord
     try:
-        title = "Diagnóstico automático"
-        instance = data.get("labels", {}).get("instance", "desconhecida")
-
         discord_payload = {
-            "content": f"@everyone 🚨 **Alerta Grafana** detectado!",
+            "content": f"@everyone 🚨 **{rule_name}** detectado!",
             "embeds": [
                 {
-                    "title": f"📊 {title} – {instance}",
+                    "title": f"📊 Diagnóstico automático – {instance}",
                     "description": resposta,
                     "color": 15158332  # vermelho
                 }
@@ -99,8 +103,7 @@ Resumo: {summary}"""
 
     return {"status": "ok"}, 200
 
-
-# 🚀 Railway & Localhost
+# 🚀 Railway ou local
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)

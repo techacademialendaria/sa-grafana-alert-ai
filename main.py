@@ -17,7 +17,7 @@ def handle_alert():
 
     rule_name = data.get("ruleName", "Alerta Grafana")
     labels = data.get("labels", {})
-    instance = labels.get("instance", "desconhecida")
+    instance = labels.get("instance") or "desconhecida"
     value = data.get("valueString", "?")
     summary = data.get("annotations", {}).get("summary", "Sem resumo")
 
